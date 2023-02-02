@@ -486,6 +486,7 @@ function ReadSettings {
         "sendExtendedTelemetryToMicrosoft"       = $false
         "environments"                           = @()
         "buildModes"                             = @()
+        "baselineVersion"                        = ""
     }
 
     # Read settings from files and merge them into the settings object
