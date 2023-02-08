@@ -3,6 +3,10 @@ name: 'CI/CD'
 on:
   workflow_dispatch:
   push:
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/*.yaml'
+      - '!.github/workflows/CICD.yaml'
     branches: [ 'main', 'release/*', 'feature/*' ]
 
 run-name: 'CI/CD: ${{github.event.head_commit.message}}'
@@ -11,8 +15,14 @@ defaults:
   run:
     shell: powershell
 
+permissions:
+  contents: read
+  actions: read
+
 env:
   workflowDepth: 1
+  ALGoOrgSettings: ${{ vars.ALGoOrgSettings }}
+  ALGoRepoSettings: ${{ vars.ALGoRepoSettings }}
 
 jobs:
   Initialization:
@@ -76,7 +86,7 @@ jobs:
           shell: powershell
           settingsJson: ${{ env.Settings }}
           secrets: ${{ steps.DetermineDeliveryTargetSecrets.outputs.Secrets }}
-      
+
       - name: Determine Delivery Targets
         id: DetermineDeliveryTargets
         run: |
@@ -141,11 +151,11 @@ jobs:
         id: BuildOrder
         uses: aholstrup1/AL-Go-Actions/DetermineBuildOrder@main
         with:
+          shell: powershell
           projects: ${{ steps.ReadSettings.outputs.ProjectsJson }}
           buildOrder: ${{ steps.ReadSettings.outputs.BuildOrderJson }}
           buildOrderDepth: ${{ steps.ReadSettings.outputs.BuildOrderDepth }}
           workflowDepth: ${{ env.workflowDepth }}
-          outputPath: ${{ env.GITHUB_OUTPUT }}
 
   CheckForUpdates:
     runs-on: [ windows-latest ]
@@ -238,7 +248,7 @@ jobs:
           settingsJson: ${{ env.Settings }}
           project: ${{ matrix.project }}
           buildMode: ${{ matrix.buildMode }}
-          refName: ${{ github.ref_name }}
+          branchName: ${{ github.ref_name }}
 
       - name: Upload thisbuild artifacts - apps
         if: env.workflowDepth > 1

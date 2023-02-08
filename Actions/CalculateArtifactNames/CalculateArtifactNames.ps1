@@ -1,25 +1,19 @@
 Param(
-    [Parameter(HelpMessage = "settings", Mandatory = $true)]
+    [Parameter(HelpMessage = "Settings from repository in compressed Json format", Mandatory = $true)]
     [string] $settingsJson,
-    [Parameter(HelpMessage = "project", Mandatory = $true)]
+    [Parameter(HelpMessage = "Name of the built project", Mandatory = $true)]
     [string] $project,
-    [Parameter(HelpMessage = "buildmode", Mandatory = $true)]
+    [Parameter(HelpMessage = "Buildmode used when building the artifacts", Mandatory = $true)]
     [string] $buildMode,
-    [Parameter(HelpMessage = "refname", Mandatory = $true)]
-    [string] $refName,
-    [switch] $runLocally
+    [Parameter(HelpMessage = "Name of the branch the workflow is running on", Mandatory = $true)]
+    [string] $branchName
 )
 
-function Set-EnvVariable([string]$name, [string]$value, [switch]$runLocally) {
+function Set-EnvVariable([string] $name, [string] $value) {
     Write-Host "Assigning $value to $name"
-    if ($runLocally) {
-        [Environment]::SetEnvironmentVariable($name, $value)
-    } else {
-        Add-Content -Path $env:GITHUB_OUTPUT -Value "$name=$value"
-        Add-Content -Path $env:GITHUB_ENV -Value "$name=$value"
-    }
+    Add-Content -Path $env:GITHUB_OUTPUT -Value "$name=$value"
+    Add-Content -Path $env:GITHUB_ENV -Value "$name=$value"
 }
-
 
 $ErrorActionPreference = "STOP"
 Set-StrictMode -version 2.0
@@ -37,7 +31,7 @@ if ($buildMode -eq 'Default') {
 
 'Apps','Dependencies','TestApps','TestResults','BcptTestResults','BuildOutput','ContainerEventLog' | ForEach-Object {
   $name = "$($_)ArtifactsName"
-  $value = "$($project.Replace('\','_').Replace('/','_'))-$($refName)-$buildMode$_-$($settings.repoVersion).$($settings.appBuild).$($settings.appRevision)"
-  Set-EnvVariable -name $name -value $value -runLocally:$runLocally
+  $value = "$($project.Replace('\','_').Replace('/','_'))-$($branchName)-$buildMode$_-$($settings.repoVersion).$($settings.appBuild).$($settings.appRevision)"
+  Set-EnvVariable -name $name -value $value
 }
-Set-EnvVariable -name "BuildMode" -value $buildMode -runLocally:$runLocally
+Set-EnvVariable -name "BuildMode" -value $buildMode
