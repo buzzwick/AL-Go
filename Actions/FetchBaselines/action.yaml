@@ -1,0 +1,26 @@
+name: PowerShell script
+author: Microsodt
+inputs:
+  shell:
+    description: Shell in which you want to run the action (powershell or pwsh)
+    required: false
+    default: powershell
+  project:
+    description: Project folder
+    required: true
+  buildMode:
+    description: The current build mode
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: run
+      shell: ${{ inputs.shell }}
+      id: fetchbaselines
+      env:
+        _project: ${{ inputs.project }}
+        _buildMode: ${{ inputs.buildMode }}
+      run: try { ${{ github.action_path }}/FetchBaselines.ps1 -Project $ENV:_project -BuildMode $ENV:_buildMode } catch { Write-Host "::Error::Unexpected error when running action ($($_.Exception.Message.Replace("`r",'').Replace("`n",' ')))"; exit 1 }
+branding:
+  icon: terminal
+  color: blue
