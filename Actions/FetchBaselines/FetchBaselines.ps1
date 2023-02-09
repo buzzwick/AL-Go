@@ -20,7 +20,7 @@ try {
     $BcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $baseFolder
 
     Write-Host 'Executing custom script to fetch baselines'
-    . $baselineScript -Project $project -BuildMode $buildMode -Settings $settings
+    . $baselineScript -Project $project -BuildMode $buildMode
 }
 finally {
     CleanupAfterBcContainerHelper -bcContainerHelperPath $bcContainerHelperPath
