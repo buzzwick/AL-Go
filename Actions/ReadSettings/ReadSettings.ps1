@@ -147,6 +147,9 @@ try {
         } elseif ($ENV:GITHUB_WORKFLOW -eq 'CI/CD') {
             Write-Host "Building all projects because this is a CICD run"
             return $projects
+        } elseif ($ENV:GITHUB_EVENT_NAME -notin @("pull_request_target", "pull_request", "push")) {
+            Write-Host "Building all projects because this is not a push or pull request"
+            return $projects
         }
         else {
             $filesChanged = @(Get-ChangedFiles -token $token)
