@@ -171,7 +171,7 @@ function TestAllWorkflowsInPath {
 
     $workflows = Get-ChildItem -Path $Path -File -Recurse -Include ('*.yaml', '*.yml')
     $workflows | ForEach-Object {
-        TestActionsAreComingFromMicrosoftALGOActions -YamlPath $_.FullName
+        TestActionsAreComingFromALGoActions -YamlPath $_.FullName
     }
 }
 
